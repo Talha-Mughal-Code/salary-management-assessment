@@ -1,8 +1,15 @@
+from collections import Counter
 from datetime import UTC, datetime
+from decimal import Decimal
 
 from app.models import Employee
 from app.schemas.employee_list import EmployeeListParams
-from app.schemas.insights import GroupPayStats, InsightsParams, PayStats
+from app.schemas.insights import (
+    GroupPayStats,
+    InsightsFilters,
+    InsightsParams,
+    PayStats,
+)
 
 
 class FakeEmployeeRepository:
@@ -53,12 +60,28 @@ def _matches(employee: Employee, params: EmployeeListParams) -> bool:
 
 
 class FakeInsightsRepository:
-    def __init__(self, overall: PayStats, groups: list[GroupPayStats]) -> None:
+    def __init__(
+        self,
+        overall: PayStats | None = None,
+        groups: list[GroupPayStats] | None = None,
+        salaries: list[Decimal] | None = None,
+    ) -> None:
         self._overall = overall
-        self._groups = groups
+        self._groups = groups or []
+        self._salaries = salaries or []
 
-    def overall(self, params: InsightsParams) -> PayStats:
+    def overall(self, params: InsightsParams) -> PayStats | None:
         return self._overall
 
     def by_group(self, params: InsightsParams) -> list[GroupPayStats]:
         return list(self._groups)
+
+    def salary_range(self, filters: InsightsFilters) -> tuple[Decimal, Decimal] | None:
+        if not self._salaries:
+            return None
+        return min(self._salaries), max(self._salaries)
+
+    def bucket_counts(
+        self, filters: InsightsFilters, start: Decimal, width: Decimal
+    ) -> dict[int, int]:
+        return dict(Counter(int((s - start) // width) for s in self._salaries))

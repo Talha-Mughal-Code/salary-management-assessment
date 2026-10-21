@@ -4,7 +4,12 @@ from fastapi import APIRouter, Query
 
 from app.api.dependencies import InsightsServiceDep
 from app.api.tags import INSIGHTS
-from app.schemas.insights import InsightsParams, PaySummary
+from app.schemas.insights import (
+    InsightsFilters,
+    InsightsParams,
+    PaySummary,
+    SalaryDistribution,
+)
 
 router = APIRouter(prefix="/api/v1/insights", tags=[INSIGHTS])
 
@@ -21,3 +26,17 @@ def pay_summary(
     params: Annotated[InsightsParams, Query()], service: InsightsServiceDep
 ) -> PaySummary:
     return service.summary(params)
+
+
+@router.get(
+    "/distribution",
+    summary="Salary distribution",
+    description="Counts of filtered employees per `salary_usd` range, for a "
+    "histogram. Up to about 20 buckets with round edges; each covers `min` up to but "
+    "not including `max`. Empty when no employee matches.",
+    response_model=SalaryDistribution,
+)
+def salary_distribution(
+    filters: Annotated[InsightsFilters, Query()], service: InsightsServiceDep
+) -> SalaryDistribution:
+    return service.distribution(filters)

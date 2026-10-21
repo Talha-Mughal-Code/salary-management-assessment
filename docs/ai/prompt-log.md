@@ -118,3 +118,11 @@ Record how AI was used and how its output was checked. Add an entry for each not
 - **Correction:** none. Kept p25 and p75 only; p10 and p90 can be added later.
 - **Commit:** `feat(backend): add pay insights by country, job title and department`
 
+### Salary distribution
+- **Goal:** give the dashboard a histogram of salaries in USD.
+- **Prompt (or summary):** asked Claude Code for `GET /api/v1/insights/distribution` with the same filters as the summary, about 20 buckets with round edges, counted in SQL.
+- **Result:** `SalaryDistribution` and `SalaryBucket` schemas, `salary_range` and `bucket_counts` in the insights repository, bucket sizing in `InsightsService` (`nice_width` picks 1, 2, 2.5 or 5 times a power of ten), and the route.
+- **My review:** unit tests cover `nice_width`, bucket edges, the bucket holding the maximum, empty buckets, a single salary, no employees, and money serialized as plain strings. Integration tests check the SQL range and counts. On the seeded data, bucket totals match headcounts (10,000 overall, 1,149 for Germany). `pytest` and `ruff` clean.
+- **Correction:** counts use `floor((salary - start) / width)` instead of `width_bucket`, which needs special handling for a value equal to the upper bound. Rounding the width up gives 13 to 19 buckets on real data, so the description now says "up to about 20".
+- **Commit:** `feat(backend): add salary distribution insight`
+

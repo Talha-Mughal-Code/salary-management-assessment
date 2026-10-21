@@ -9,11 +9,14 @@ from app.schemas.employee_list import FilterText
 GroupBy = Literal["country", "job_title", "department"]
 
 
-class InsightsParams(BaseModel):
-    group_by: GroupBy
+class InsightsFilters(BaseModel):
     country: CountryCode | None = None
     job_title: FilterText | None = None
     department: FilterText | None = None
+
+
+class InsightsParams(InsightsFilters):
+    group_by: GroupBy
 
 
 class PayStats(BaseModel):
@@ -35,3 +38,14 @@ class PaySummary(BaseModel):
     currency: Literal["USD"] = "USD"
     overall: PayStats
     groups: list[GroupPayStats]
+
+
+class SalaryBucket(BaseModel):
+    min: Decimal
+    max: Decimal
+    count: int
+
+
+class SalaryDistribution(BaseModel):
+    currency: Literal["USD"] = "USD"
+    buckets: list[SalaryBucket]

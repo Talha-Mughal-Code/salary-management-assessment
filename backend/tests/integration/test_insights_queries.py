@@ -8,7 +8,7 @@ from app.models import Employee
 from app.repositories.sqlalchemy_insights_repository import (
     SqlAlchemyInsightsRepository,
 )
-from app.schemas.insights import InsightsParams
+from app.schemas.insights import InsightsFilters, InsightsParams
 
 pytestmark = pytest.mark.integration
 
@@ -86,3 +86,21 @@ def test_no_matching_employees_gives_empty_stats(repository):
     assert repository.overall(params).headcount == 0
     assert repository.overall(params).median is None
     assert repository.by_group(params) == []
+
+
+def test_salary_range_and_bucket_counts(repository):
+    filters = InsightsFilters(country="DE")
+
+    assert repository.salary_range(filters) == (
+        Decimal("10000.00"),
+        Decimal("40000.00"),
+    )
+    assert repository.bucket_counts(filters, Decimal("10000"), Decimal("15000")) == {
+        0: 2,
+        1: 1,
+        2: 1,
+    }
+
+
+def test_salary_range_is_none_without_employees(repository):
+    assert repository.salary_range(InsightsFilters(country="JP")) is None

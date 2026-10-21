@@ -38,3 +38,11 @@ Record how AI was used and how its output was checked. Add an entry for each not
 - **Correction:** the earlier Vercel setup missed that Vercel prefers `pyproject.toml` over `requirements.txt` when both exist.
 - **Commit:** `fix(deploy): move tool config out of pyproject.toml for Vercel`
 
+### Settings and database session
+- **Goal:** read the database URL from settings and give the app a session that works on Vercel with Supabase.
+- **Prompt (or summary):** asked Claude Code for `pydantic-settings` config, a SQLAlchemy engine and session, `.env.example`, and a local Postgres in Docker.
+- **Result:** `app/core/config.py`, `app/core/database.py` (`NullPool`, prepared statements off for Supabase's transaction pooler), `docker-compose.yml` with Postgres 17, `.env.example`, unit tests for settings and pooling, and an integration test that runs `SELECT 1`.
+- **My review:** `pytest`, `pytest -m integration` against the Docker database, and `ruff` all clean. Settings and engine are created on first use, so importing the app without `DATABASE_URL` does not fail.
+- **Correction:** none
+- **Commit:** `feat(backend): add settings and database session setup`
+

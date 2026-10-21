@@ -34,7 +34,7 @@ Record how AI was used and how its output was checked. Add an entry for each not
 - **Goal:** fix the first Vercel build.
 - **Prompt (or summary):** pasted the build log: `uv lock` failed with "No `project` table found in pyproject.toml".
 - **Result:** moved the ruff settings to `ruff.toml` and the pytest settings to `pytest.ini`, and deleted `pyproject.toml`, so Vercel installs from `requirements.txt`.
-- **My review:** `pytest` and `ruff` still pick up their settings.
+- **My review:** `pytest` and `ruff` still pick up their settings; redeployed, and `/health` on the live URL returns ok.
 - **Correction:** the earlier Vercel setup missed that Vercel prefers `pyproject.toml` over `requirements.txt` when both exist.
 - **Commit:** `fix(deploy): move tool config out of pyproject.toml for Vercel`
 

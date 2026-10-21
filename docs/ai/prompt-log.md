@@ -14,3 +14,11 @@ Record how AI was used and how its output was checked. Add an entry for each not
 
 ## Entries
 
+### FastAPI skeleton with health endpoint
+- **Goal:** start the backend with a runnable app, lint and test config, and one passing test.
+- **Prompt (or summary):** asked Claude Code to add a FastAPI app with a `GET /health` endpoint, following `backend/CLAUDE.md`.
+- **Result:** `pyproject.toml` (ruff, pytest with integration tests skipped by default), `app/main.py`, `app/api/health.py`, `app/api/tags.py`, `app/schemas/health.py`, `tests/test_health.py`.
+- **My review:** `pytest` and `ruff` clean; ran uvicorn and checked `/health` and the tag in `/openapi.json`.
+- **Correction:** `app/main.py` went over ruff's line length, so it was fixed with `ruff format`. `tags.py` was added early because rule 9 needs a tag on every route.
+- **Commit:** `chore(backend): initialize FastAPI app with health endpoint`
+

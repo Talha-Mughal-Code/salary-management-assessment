@@ -30,3 +30,11 @@ Record how AI was used and how its output was checked. Add an entry for each not
 - **Correction:** the first version used Render, but its free plan (Blueprint and manual web service) asked for a card. Switched to Vercel Hobby, which does not. Serverless means each instance opens its own connections, so the database will go through Supabase's pooler with `NullPool`.
 - **Commit:** `chore(deploy): set up backend deployment on Vercel`
 
+### Vercel build failed on pyproject.toml
+- **Goal:** fix the first Vercel build.
+- **Prompt (or summary):** pasted the build log: `uv lock` failed with "No `project` table found in pyproject.toml".
+- **Result:** moved the ruff settings to `ruff.toml` and the pytest settings to `pytest.ini`, and deleted `pyproject.toml`, so Vercel installs from `requirements.txt`.
+- **My review:** `pytest` and `ruff` still pick up their settings.
+- **Correction:** the earlier Vercel setup missed that Vercel prefers `pyproject.toml` over `requirements.txt` when both exist.
+- **Commit:** `fix(deploy): move tool config out of pyproject.toml for Vercel`
+

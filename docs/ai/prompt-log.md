@@ -54,3 +54,11 @@ Record how AI was used and how its output was checked. Add an entry for each not
 - **Correction:** ruff sorted `from alembic import ...` as first-party because of the local `alembic/` folder, so `alembic` is marked third-party in `ruff.toml`. Indexes for name search and salary sorting are left for the performance pass.
 - **Commit:** `feat(backend): add Employee model and initial migration`
 
+### Fixed exchange rates
+- **Goal:** convert local salaries to USD so insights compare one currency.
+- **Prompt (or summary):** agreed 8 currencies (USD, EUR, GBP, CAD, AUD, JPY, INR, BRL) for 10 countries with Claude Code, then asked for `app/core/fx.py` with `Decimal` maths and tests.
+- **Result:** `USD_PER_UNIT` rate table, `to_usd()` rounding half-up to cents, `UnknownCurrencyError`, and unit tests.
+- **My review:** tests cover pass-through, a normal conversion, JPY, a half-cent case (`1000.25 AUD → 660.165`) where half-up and banker's rounding differ, two decimal places, and an unknown currency. `pytest` and `ruff` clean.
+- **Correction:** none
+- **Commit:** `feat(backend): add fixed FX rates and salary normalization`
+

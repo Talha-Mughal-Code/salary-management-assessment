@@ -46,3 +46,11 @@ Record how AI was used and how its output was checked. Add an entry for each not
 - **Correction:** none
 - **Commit:** `feat(backend): add settings and database session setup`
 
+### Employee model and first migration
+- **Goal:** create the `employees` table with the indexes the list filters need.
+- **Prompt (or summary):** agreed the columns, types and indexes with Claude Code first (integer identity id, unique lowercase email, `numeric(12,2)` money, `salary > 0` check), then asked it to add the model and Alembic setup and autogenerate the migration.
+- **Result:** `app/models/base.py` (constraint naming convention), `app/models/employee.py`, `alembic.ini` with ruff hooks for new migrations, `alembic/env.py` reading the URL from settings, the migration, and unit tests on the table definition.
+- **My review:** read the generated migration; ran upgrade, `\d employees`, downgrade and upgrade again against Docker Postgres; one head; `alembic check` reports no drift; `pytest` and `ruff` clean.
+- **Correction:** ruff sorted `from alembic import ...` as first-party because of the local `alembic/` folder, so `alembic` is marked third-party in `ruff.toml`. Indexes for name search and salary sorting are left for the performance pass.
+- **Commit:** `feat(backend): add Employee model and initial migration`
+

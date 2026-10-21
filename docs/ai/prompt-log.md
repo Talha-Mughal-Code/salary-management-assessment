@@ -70,3 +70,11 @@ Record how AI was used and how its output was checked. Add an entry for each not
 - **Correction:** seeding Faker once gave the English locales identical name sequences, so each locale gets its own seed. Japanese names are romanized so emails stay ASCII.
 - **Commit:** `feat(backend): add deterministic seed script for 10,000 employees`
 
+### CI for the backend
+- **Goal:** run lint and unit tests on every backend change.
+- **Prompt (or summary):** asked Claude Code for a GitHub Actions workflow running `ruff` and `pytest` for `backend/`.
+- **Result:** `.github/workflows/backend.yml`: runs on pushes to `main` and pull requests that touch `backend/`, uses Python from `backend/.python-version`, caches pip, then `ruff check`, `ruff format --check` and `pytest`. Integration tests stay local, since plain `pytest` skips them.
+- **My review:** checked the `setup-python@v7` inputs and that both `v7` tags exist; ran the same steps on a clean copy of the committed backend with no `.env` or `DATABASE_URL`: all passed.
+- **Correction:** none
+- **Commit:** `ci: add GitHub Actions for lint and unit tests`
+

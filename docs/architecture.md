@@ -7,7 +7,7 @@ Scope lives in [requirements.md](requirements.md). This note records how the sys
 ## Shape
 
 ```
-Browser -> Next.js (Vercel) -> FastAPI (Render) -> Postgres (Supabase)
+Browser -> Next.js (Vercel) -> FastAPI (Vercel Function) -> Postgres (Supabase)
 ```
 
 A modular monolith: one backend, one database, clear internal layers. 10,000 rows, one user and a small team do not justify services that deploy separately.
@@ -25,7 +25,7 @@ Backend layers: `router -> service -> repository -> database`.
 | --- | --- | --- | --- |
 | Backend | FastAPI, SQLAlchemy, Alembic | Next.js full-stack (API routes and an ORM) | Typed request models, OpenAPI docs for free, and a clean layer for unit tests. Cost: two deploys and CORS. |
 | Database | Postgres on Supabase | SQLite | Free hosts have ephemeral filesystems. Postgres has `percentile_cont` built in. |
-| Hosting | Render (backend), Vercel (frontend) | One platform for both | Free tier for each part. Render sleeps after idle, so the UI shows a "waking up the server" message. |
+| Hosting | Vercel for both, as two projects (`frontend/` and `backend/`) | Render for the backend | Render's free plan asks for a card; Vercel Hobby does not. FastAPI runs as one serverless function, so a cold start takes seconds, not a minute. Each instance opens its own connections, so the backend connects through Supabase's pooler with SQLAlchemy pooling off (`NullPool`). |
 | Money | `Decimal` and `Numeric(12, 2)` | Float | Floats cannot represent cents exactly. |
 | Currency | Local `salary` plus ISO 4217 `currency`, and `salary_usd` computed on write | Convert at query time, or live rates | Insights compare in one currency and stay indexable. Fixed demo rates in `app/core/fx.py` keep tests deterministic. Changing a rate means recomputing `salary_usd`. |
 | Pay insights | Median and percentiles with `percentile_cont` in SQL | Averages only, or computing in Python | Pay is skewed, so medians describe it better than averages. Computing in SQL avoids loading 10,000 rows into the app. |

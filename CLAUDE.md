@@ -89,7 +89,7 @@ Web app for an HR Manager at ACME to manage salaries for 10,000 employees across
 
 - Adding new dependencies (npm or Python).
 - Changing the database schema or the API contract.
-- Changing deployment configuration (`render.yaml`, Vercel settings).
+- Changing deployment configuration (Vercel settings).
 - Anything not covered by `docs/requirements.md`.
 
 ## Never

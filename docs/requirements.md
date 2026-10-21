@@ -40,7 +40,7 @@ The design is deliberately simple: one backend, one database, clear internal lay
 | Backend | FastAPI, SQLAlchemy, Alembic migrations (Python) | Typed, testable, auto-generated API docs |
 | Database | Supabase Postgres | Free hosting filesystems are ephemeral, and Postgres has built-in percentile functions for insights |
 | Frontend | Next.js, TypeScript, shadcn/ui, server-side pagination | Never load all 10,000 rows into the browser |
-| Deployment | Monorepo: backend on Render, frontend on Vercel, database on Supabase | Free tier; a cold start after idle time is documented in the README |
+| Deployment | Monorepo: backend and frontend as two Vercel projects, database on Supabase | Free tier with no card; a cold start after idle time is documented in the README |
 | Currency | Local amount plus ISO currency code per employee; insights in USD | Fair comparison across countries |
 | Performance targets | List and search under 300 ms, insights under 1 s, at 10,000 rows | Indexed queries; measured and noted in the performance notes |
 | Testing | pytest on the service layer with fakes, no network, fixed random seed | Fast, deterministic, easy to read |

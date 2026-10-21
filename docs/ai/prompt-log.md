@@ -22,3 +22,11 @@ Record how AI was used and how its output was checked. Add an entry for each not
 - **Correction:** `app/main.py` went over ruff's line length, so it was fixed with `ruff format`. `tags.py` was added early because rule 9 needs a tag on every route.
 - **Commit:** `chore(backend): initialize FastAPI app with health endpoint`
 
+### Backend deployment on Vercel
+- **Goal:** deploy the backend skeleton early so hosting problems show up before features exist.
+- **Prompt (or summary):** asked Claude Code for a Render Blueprint for the FastAPI backend, then to move the backend to Vercel when Render asked for a card.
+- **Result:** `backend/.python-version` (3.14), README deploy notes, and updated hosting decisions in `docs/architecture.md` and `docs/requirements.md`. Vercel detects FastAPI from `app/main.py`, so no `vercel.json` is needed.
+- **My review:** checked the entrypoint and Python version rules in Vercel's FastAPI and Python runtime docs; `pytest` and `ruff` clean.
+- **Correction:** the first version used Render, but its free plan (Blueprint and manual web service) asked for a card. Switched to Vercel Hobby, which does not. Serverless means each instance opens its own connections, so the database will go through Supabase's pooler with `NullPool`.
+- **Commit:** `chore(deploy): set up backend deployment on Vercel`
+

@@ -86,3 +86,11 @@ Record how AI was used and how its output was checked. Add an entry for each not
 - **Correction:** Pydantic checks `pattern` before `to_upper`, so lowercase `de` was rejected. The country pattern now accepts either case and the value is still stored uppercase. Email uses a simple pattern instead of `EmailStr` to avoid adding `email-validator`.
 - **Commit:** `feat(backend): add employee schemas with validation`
 
+### Employee repository and service
+- **Goal:** create, read, update and delete employees, with business rules in the service and SQL in the repository.
+- **Prompt (or summary):** asked Claude Code for a repository interface, a SQLAlchemy implementation, an `EmployeeService` with domain errors, and a fake repository for unit tests.
+- **Result:** `EmployeeRepository` protocol, `SqlAlchemyEmployeeRepository` (commits each write), `EmployeeService` (lowercases email, rejects duplicates, recomputes `salary_usd` on every update), `EmployeeNotFoundError` and `DuplicateEmailError`, `tests/fakes.py`, 11 service unit tests, 4 repository integration tests, and a shared savepoint fixture so integration tests never change local data.
+- **My review:** `pytest`, `pytest -m integration` and `ruff` clean; the 10,000 seeded rows were still there after the integration run.
+- **Correction:** a repository test asserted that `updated_at` increases, but `now()` is fixed inside one transaction, so it could never fail. Removed that assertion. The duplicate-email check runs before the insert; the unique index still protects against a race.
+- **Commit:** `feat(backend): add employee repository and service for CRUD`
+

@@ -126,3 +126,11 @@ Record how AI was used and how its output was checked. Add an entry for each not
 - **Correction:** counts use `floor((salary - start) / width)` instead of `width_bucket`, which needs special handling for a value equal to the upper bound. Rounding the width up gives 13 to 19 buckets on real data, so the description now says "up to about 20".
 - **Commit:** `feat(backend): add salary distribution insight`
 
+### CSV export
+- **Goal:** let the HR Manager download the filtered employee view.
+- **Prompt (or summary):** asked Claude Code for `GET /api/v1/employees/export` reusing the list's search, filters and sort, without paging.
+- **Result:** `EmployeeQuery` (list parameters without paging, now the base of `EmployeeListParams`), `all_matching` in the repository, `employees_to_csv` with formula-injection protection, `export_csv` in the service, and the route, declared before `/{employee_id}` so `export` is not read as an id.
+- **My review:** unit tests cover the header, plain values, commas and quotes, formula-like text, the download headers, filtering and the route order; an integration test covers the SQL. Exported all 10,000 seeded rows: 1.8 MB in 0.39 s. `pytest` and `ruff` clean.
+- **Correction:** the plan said streaming; rows are loaded in one query instead, because a streamed response would need the database session to outlive the request. The file stays under Vercel's 4.5 MB response limit.
+- **Commit:** `feat(backend): add CSV export for the filtered employee view`
+

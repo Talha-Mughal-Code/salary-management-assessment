@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.models import Employee
 from app.repositories.employee_filters import apply_employee_filters
-from app.schemas.employee_list import EmployeeListParams
+from app.schemas.employee_list import EmployeeListParams, EmployeeQuery
 
 
 class SqlAlchemyEmployeeRepository:
@@ -15,14 +15,16 @@ class SqlAlchemyEmployeeRepository:
         total = self._session.scalar(
             select(func.count()).select_from(filtered.subquery())
         )
-        sort_column = getattr(Employee, params.sort)
-        sort = sort_column.desc() if params.order == "desc" else sort_column.asc()
         page = (
-            filtered.order_by(sort, Employee.id)
+            _apply_sort(filtered, params)
             .offset((params.page - 1) * params.page_size)
             .limit(params.page_size)
         )
         return list(self._session.scalars(page)), total or 0
+
+    def all_matching(self, query: EmployeeQuery) -> list[Employee]:
+        statement = _apply_sort(_apply_filters(select(Employee), query), query)
+        return list(self._session.scalars(statement))
 
     def get(self, employee_id: int) -> Employee | None:
         return self._session.get(Employee, employee_id)
@@ -44,7 +46,13 @@ class SqlAlchemyEmployeeRepository:
         self._session.commit()
 
 
-def _apply_filters(query: Select, params: EmployeeListParams) -> Select:
+def _apply_sort(query: Select, params: EmployeeQuery) -> Select:
+    column = getattr(Employee, params.sort)
+    direction = column.desc() if params.order == "desc" else column.asc()
+    return query.order_by(direction, Employee.id)
+
+
+def _apply_filters(query: Select, params: EmployeeQuery) -> Select:
     if params.q:
         query = query.where(
             or_(

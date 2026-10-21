@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 from decimal import Decimal
 
 from app.models import Employee
-from app.schemas.employee_list import EmployeeListParams
+from app.schemas.employee_list import EmployeeListParams, EmployeeQuery
 from app.schemas.insights import (
     GroupPayStats,
     InsightsFilters,
@@ -18,15 +18,19 @@ class FakeEmployeeRepository:
         self._next_id = 1
 
     def search(self, params: EmployeeListParams) -> tuple[list[Employee], int]:
+        matches = self.all_matching(params)
+        start = (params.page - 1) * params.page_size
+        return matches[start : start + params.page_size], len(matches)
+
+    def all_matching(self, query: EmployeeQuery) -> list[Employee]:
         matches = sorted(
-            (e for e in self.employees.values() if _matches(e, params)),
+            (e for e in self.employees.values() if _matches(e, query)),
             key=lambda e: e.id,
         )
         matches.sort(
-            key=lambda e: getattr(e, params.sort), reverse=params.order == "desc"
+            key=lambda e: getattr(e, query.sort), reverse=query.order == "desc"
         )
-        start = (params.page - 1) * params.page_size
-        return matches[start : start + params.page_size], len(matches)
+        return matches
 
     def get(self, employee_id: int) -> Employee | None:
         return self.employees.get(employee_id)
@@ -49,7 +53,7 @@ class FakeEmployeeRepository:
         del self.employees[employee.id]
 
 
-def _matches(employee: Employee, params: EmployeeListParams) -> bool:
+def _matches(employee: Employee, params: EmployeeQuery) -> bool:
     text = f"{employee.full_name} {employee.email}".lower()
     return (
         (not params.q or params.q.lower() in text)

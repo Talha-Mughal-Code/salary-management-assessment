@@ -1,3 +1,6 @@
+import csv
+import io
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -136,3 +139,23 @@ def test_list_normalizes_country_filter(client):
 )
 def test_list_rejects_invalid_parameters(client, params):
     assert client.get(URL, params=params).status_code == 422
+
+
+def test_export_returns_csv_of_all_matching_employees(client):
+    for index in range(30):
+        client.post(URL, json={**NEW_EMPLOYEE, "email": f"e{index}@acme.example"})
+    client.post(URL, json={**NEW_EMPLOYEE, "email": "us@acme.example", "country": "US"})
+
+    response = client.get(f"{URL}/export", params={"country": "DE"})
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/csv")
+    assert "employees.csv" in response.headers["content-disposition"]
+    rows = list(csv.DictReader(io.StringIO(response.text)))
+    assert len(rows) == 30
+    assert rows[0]["salary_usd"] == "64800.00"
+    assert {row["country"] for row in rows} == {"DE"}
+
+
+def test_export_route_is_not_taken_as_an_employee_id(client):
+    assert client.get(f"{URL}/export").status_code == 200

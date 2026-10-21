@@ -2,7 +2,8 @@ from app.core.fx import to_usd
 from app.models import Employee
 from app.repositories.employee_repository import EmployeeRepository
 from app.schemas.employee import EmployeeCreate, EmployeeUpdate
-from app.schemas.employee_list import EmployeeListParams, EmployeePage
+from app.schemas.employee_list import EmployeeListParams, EmployeePage, EmployeeQuery
+from app.services.employee_export import employees_to_csv
 from app.services.errors import DuplicateEmailError, EmployeeNotFoundError
 
 
@@ -15,6 +16,9 @@ class EmployeeService:
         return EmployeePage(
             items=items, total=total, page=params.page, page_size=params.page_size
         )
+
+    def export_csv(self, query: EmployeeQuery) -> str:
+        return employees_to_csv(self._repository.all_matching(query))
 
     def create(self, data: EmployeeCreate) -> Employee:
         fields = data.model_dump()

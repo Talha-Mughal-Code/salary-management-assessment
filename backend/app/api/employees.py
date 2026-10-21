@@ -1,13 +1,13 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Query, status
+from fastapi import APIRouter, Query, Response, status
 
 from app.api.dependencies import EmployeeServiceDep
 from app.api.errors import DUPLICATE_EMAIL_RESPONSE, NOT_FOUND_RESPONSE
 from app.api.tags import EMPLOYEES
 from app.models import Employee
 from app.schemas.employee import EmployeeCreate, EmployeeResponse, EmployeeUpdate
-from app.schemas.employee_list import EmployeeListParams, EmployeePage
+from app.schemas.employee_list import EmployeeListParams, EmployeePage, EmployeeQuery
 
 router = APIRouter(prefix="/api/v1/employees", tags=[EMPLOYEES])
 
@@ -24,6 +24,25 @@ def list_employees(
     params: Annotated[EmployeeListParams, Query()], service: EmployeeServiceDep
 ) -> EmployeePage:
     return service.search(params)
+
+
+@router.get(
+    "/export",
+    summary="Export employees as CSV",
+    description="Every employee matching the same search, filters and sort as the "
+    "list, without paging, as a CSV download.",
+    response_class=Response,
+    response_model=None,
+    responses={200: {"content": {"text/csv": {}}, "description": "CSV file."}},
+)
+def export_employees(
+    query: Annotated[EmployeeQuery, Query()], service: EmployeeServiceDep
+) -> Response:
+    return Response(
+        content=service.export_csv(query),
+        media_type="text/csv",
+        headers={"Content-Disposition": 'attachment; filename="employees.csv"'},
+    )
 
 
 @router.post(

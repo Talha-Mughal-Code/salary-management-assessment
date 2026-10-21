@@ -1,11 +1,13 @@
 from typing import Protocol
 
 from app.models import Employee
-from app.schemas.employee_list import EmployeeListParams
+from app.schemas.employee_list import EmployeeListParams, EmployeeQuery
 
 
 class EmployeeRepository(Protocol):
     def search(self, params: EmployeeListParams) -> tuple[list[Employee], int]: ...
+
+    def all_matching(self, query: EmployeeQuery) -> list[Employee]: ...
 
     def get(self, employee_id: int) -> Employee | None: ...
 

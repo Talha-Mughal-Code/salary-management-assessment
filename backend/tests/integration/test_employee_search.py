@@ -8,7 +8,7 @@ from app.models import Employee
 from app.repositories.sqlalchemy_employee_repository import (
     SqlAlchemyEmployeeRepository,
 )
-from app.schemas.employee_list import EmployeeListParams
+from app.schemas.employee_list import EmployeeListParams, EmployeeQuery
 
 pytestmark = pytest.mark.integration
 
@@ -74,3 +74,11 @@ def test_sort_by_salary_desc_breaks_ties_by_id(repository):
         "Chloé Martin",
         "Dan 100% Lee",
     ]
+
+
+def test_all_matching_filters_and_sorts_without_paging(repository):
+    employees = repository.all_matching(
+        EmployeeQuery(department="Engineering", sort="salary_usd", order="desc")
+    )
+
+    assert [e.full_name for e in employees] == ["Ben Miller", "Anna Schmidt"]

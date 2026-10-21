@@ -10,15 +10,18 @@ SortField = Literal[
 FilterText = Annotated[str, StringConstraints(strip_whitespace=True, max_length=200)]
 
 
-class EmployeeListParams(BaseModel):
-    page: int = Field(1, ge=1)
-    page_size: int = Field(25, ge=1, le=100)
+class EmployeeQuery(BaseModel):
     q: FilterText | None = Field(None, description="Matches name or email.")
     country: CountryCode | None = None
     job_title: FilterText | None = None
     department: FilterText | None = None
     sort: SortField = "full_name"
     order: Literal["asc", "desc"] = "asc"
+
+
+class EmployeeListParams(EmployeeQuery):
+    page: int = Field(1, ge=1)
+    page_size: int = Field(25, ge=1, le=100)
 
 
 class EmployeePage(BaseModel):

@@ -78,3 +78,11 @@ Record how AI was used and how its output was checked. Add an entry for each not
 - **Correction:** none
 - **Commit:** `ci: add GitHub Actions for lint and unit tests`
 
+### Employee request and response schemas
+- **Goal:** define the API contract for employees and reject bad input before it reaches the service.
+- **Prompt (or summary):** agreed the fields and rules with Claude Code first (supported currencies only, two-letter country, positive salary with 2 decimals, partial updates, money as strings), then asked for the Pydantic models and tests.
+- **Result:** `app/schemas/employee.py` with `EmployeeCreate`, `EmployeeUpdate` (every field optional, but not null) and `EmployeeResponse`; tests for each rule.
+- **My review:** 15 schema tests cover valid input, a missing field, bad salary, currency, country, email and name values, unknown fields, empty and null updates, and money serialized as strings. `pytest` and `ruff` clean.
+- **Correction:** Pydantic checks `pattern` before `to_upper`, so lowercase `de` was rejected. The country pattern now accepts either case and the value is still stored uppercase. Email uses a simple pattern instead of `EmailStr` to avoid adding `email-validator`.
+- **Commit:** `feat(backend): add employee schemas with validation`
+

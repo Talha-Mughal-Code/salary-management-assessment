@@ -62,3 +62,11 @@ Record how AI was used and how its output was checked. Add an entry for each not
 - **Correction:** none
 - **Commit:** `feat(backend): add fixed FX rates and salary normalization`
 
+### Seed script for 10,000 employees
+- **Goal:** load realistic, reproducible demo data in one command.
+- **Prompt (or summary):** asked Claude Code for a deterministic seed script: weighted countries and departments, title-based salaries scaled per country, unique emails, chunked bulk insert and a `--reset` guard.
+- **Result:** `app/scripts/seed_data.py` (countries, departments, US base salary per title), `app/scripts/seed.py` (`generate_employees`, `seed_employees`, CLI), unit tests on the generated data and integration tests that roll back.
+- **My review:** unit tests check determinism, count, unique well-formed emails, currency per country, titles per department, `salary_usd`, and hire dates. Ran the real seed locally: 10,000 rows in about 2 seconds, a second run without `--reset` exits 1, and medians by country look sensible (US highest, India and Brazil lowest).
+- **Correction:** seeding Faker once gave the English locales identical name sequences, so each locale gets its own seed. Japanese names are romanized so emails stay ASCII.
+- **Commit:** `feat(backend): add deterministic seed script for 10,000 employees`
+

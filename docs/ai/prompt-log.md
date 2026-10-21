@@ -110,3 +110,11 @@ Record how AI was used and how its output was checked. Add an entry for each not
 - **Correction:** the first escape test searched for `100%`, which passes even without escaping, so it now searches for `%`. While checking that, a `git checkout` reverted the repository file and it had to be rewritten. Accented names sort after Z locally because the Alpine Postgres image compares bytes; noted for the performance pass.
 - **Commit:** `feat(backend): add paginated employee list with search and filters`
 
+### Pay insights summary
+- **Goal:** answer "how do we pay people?": pay statistics by country, job title or department, in USD.
+- **Prompt (or summary):** agreed the endpoint shape with Claude Code first (`group_by` plus the list filters; overall and per-group headcount, min, p25, median, p75, max and average), then asked for the schema, repository, service, route and tests.
+- **Result:** `GET /api/v1/insights/summary`, `app/schemas/insights.py`, `SqlAlchemyInsightsRepository` using `percentile_cont` cast back to `numeric(12,2)`, `InsightsService` ordering groups by median, an `insights` tag, and a shared `apply_employee_filters` helper now used by the list too.
+- **My review:** integration tests compare SQL results with values worked out by hand, including interpolated percentiles (17,500 between 10,000 and 20,000), filters applied before grouping, and an empty result. On the seeded data, the German Staff Engineer median from the API matched a direct `percentile_cont` query in psql. `pytest` and `ruff` clean.
+- **Correction:** none. Kept p25 and p75 only; p10 and p90 can be added later.
+- **Commit:** `feat(backend): add pay insights by country, job title and department`
+

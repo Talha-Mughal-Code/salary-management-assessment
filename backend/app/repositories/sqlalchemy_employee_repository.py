@@ -2,6 +2,7 @@ from sqlalchemy import Select, func, or_, select
 from sqlalchemy.orm import Session
 
 from app.models import Employee
+from app.repositories.employee_filters import apply_employee_filters
 from app.schemas.employee_list import EmployeeListParams
 
 
@@ -51,10 +52,4 @@ def _apply_filters(query: Select, params: EmployeeListParams) -> Select:
                 Employee.email.icontains(params.q, autoescape=True),
             )
         )
-    if params.country:
-        query = query.where(Employee.country == params.country)
-    if params.job_title:
-        query = query.where(Employee.job_title == params.job_title)
-    if params.department:
-        query = query.where(Employee.department == params.department)
-    return query
+    return apply_employee_filters(query, params)

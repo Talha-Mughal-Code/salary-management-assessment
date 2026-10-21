@@ -2,6 +2,7 @@ from datetime import UTC, datetime
 
 from app.models import Employee
 from app.schemas.employee_list import EmployeeListParams
+from app.schemas.insights import GroupPayStats, InsightsParams, PayStats
 
 
 class FakeEmployeeRepository:
@@ -49,3 +50,15 @@ def _matches(employee: Employee, params: EmployeeListParams) -> bool:
         and (not params.job_title or employee.job_title == params.job_title)
         and (not params.department or employee.department == params.department)
     )
+
+
+class FakeInsightsRepository:
+    def __init__(self, overall: PayStats, groups: list[GroupPayStats]) -> None:
+        self._overall = overall
+        self._groups = groups
+
+    def overall(self, params: InsightsParams) -> PayStats:
+        return self._overall
+
+    def by_group(self, params: InsightsParams) -> list[GroupPayStats]:
+        return list(self._groups)

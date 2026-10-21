@@ -102,3 +102,37 @@ def test_delete_returns_204_and_removes_employee(client):
 
 def test_delete_missing_employee_returns_404(client):
     assert client.delete(f"{URL}/99").status_code == 404
+
+
+def test_list_returns_a_page_with_total(client):
+    for index in range(3):
+        client.post(URL, json={**NEW_EMPLOYEE, "email": f"e{index}@acme.example"})
+
+    response = client.get(URL, params={"page": 2, "page_size": 2})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert (body["total"], body["page"], body["page_size"]) == (3, 2, 2)
+    assert [item["email"] for item in body["items"]] == ["e2@acme.example"]
+
+
+def test_list_defaults_to_first_page_of_25(client):
+    body = client.get(URL).json()
+
+    assert body == {"items": [], "total": 0, "page": 1, "page_size": 25}
+
+
+def test_list_normalizes_country_filter(client):
+    client.post(URL, json=NEW_EMPLOYEE)
+
+    body = client.get(URL, params={"country": "de"}).json()
+
+    assert body["total"] == 1
+
+
+@pytest.mark.parametrize(
+    "params",
+    [{"page": 0}, {"page_size": 101}, {"sort": "salary"}, {"order": "up"}],
+)
+def test_list_rejects_invalid_parameters(client, params):
+    assert client.get(URL, params=params).status_code == 422

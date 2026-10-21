@@ -2,12 +2,19 @@ from app.core.fx import to_usd
 from app.models import Employee
 from app.repositories.employee_repository import EmployeeRepository
 from app.schemas.employee import EmployeeCreate, EmployeeUpdate
+from app.schemas.employee_list import EmployeeListParams, EmployeePage
 from app.services.errors import DuplicateEmailError, EmployeeNotFoundError
 
 
 class EmployeeService:
     def __init__(self, repository: EmployeeRepository) -> None:
         self._repository = repository
+
+    def search(self, params: EmployeeListParams) -> EmployeePage:
+        items, total = self._repository.search(params)
+        return EmployeePage(
+            items=items, total=total, page=params.page, page_size=params.page_size
+        )
 
     def create(self, data: EmployeeCreate) -> Employee:
         fields = data.model_dump()

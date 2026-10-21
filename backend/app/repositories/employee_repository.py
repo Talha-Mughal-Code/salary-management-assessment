@@ -1,9 +1,12 @@
 from typing import Protocol
 
 from app.models import Employee
+from app.schemas.employee_list import EmployeeListParams
 
 
 class EmployeeRepository(Protocol):
+    def search(self, params: EmployeeListParams) -> tuple[list[Employee], int]: ...
+
     def get(self, employee_id: int) -> Employee | None: ...
 
     def get_by_email(self, email: str) -> Employee | None: ...

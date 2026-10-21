@@ -102,3 +102,11 @@ Record how AI was used and how its output was checked. Add an entry for each not
 - **Correction:** the fake repository needed `created_at` and `updated_at`, since the response model requires them.
 - **Commit:** `feat(backend): add employee CRUD endpoints`
 
+### Paginated employee list
+- **Goal:** list 10,000 employees one page at a time, with search, filters and sorting on the server.
+- **Prompt (or summary):** asked Claude Code for `GET /api/v1/employees` with `page`, `page_size`, `q`, country, job title and department filters, `sort` and `order`.
+- **Result:** `EmployeeListParams` and `EmployeePage` schemas, `search` in the repository (one count query plus one page query, ties ordered by id, `q` escaped), a pass-through in the service, the route, router and service tests, and integration tests on a known set of rows.
+- **My review:** `pytest`, `pytest -m integration` and `ruff` clean. Checked that the `%` search test fails when escaping is removed. Against 10,000 seeded rows, warm requests took 16 to 31 ms.
+- **Correction:** the first escape test searched for `100%`, which passes even without escaping, so it now searches for `%`. While checking that, a `git checkout` reverted the repository file and it had to be rewritten. Accented names sort after Z locally because the Alpine Postgres image compares bytes; noted for the performance pass.
+- **Commit:** `feat(backend): add paginated employee list with search and filters`
+

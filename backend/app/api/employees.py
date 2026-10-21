@@ -1,12 +1,29 @@
-from fastapi import APIRouter, status
+from typing import Annotated
+
+from fastapi import APIRouter, Query, status
 
 from app.api.dependencies import EmployeeServiceDep
 from app.api.errors import DUPLICATE_EMAIL_RESPONSE, NOT_FOUND_RESPONSE
 from app.api.tags import EMPLOYEES
 from app.models import Employee
 from app.schemas.employee import EmployeeCreate, EmployeeResponse, EmployeeUpdate
+from app.schemas.employee_list import EmployeeListParams, EmployeePage
 
 router = APIRouter(prefix="/api/v1/employees", tags=[EMPLOYEES])
+
+
+@router.get(
+    "",
+    summary="List employees",
+    description="One page of employees, filtered and sorted on the server. "
+    "`q` matches name or email, ignoring case. Filters match exactly. "
+    "Salary sorting uses `salary_usd`. Ties are ordered by id.",
+    response_model=EmployeePage,
+)
+def list_employees(
+    params: Annotated[EmployeeListParams, Query()], service: EmployeeServiceDep
+) -> EmployeePage:
+    return service.search(params)
 
 
 @router.post(

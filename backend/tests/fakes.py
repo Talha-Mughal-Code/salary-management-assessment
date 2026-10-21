@@ -1,12 +1,24 @@
 from datetime import UTC, datetime
 
 from app.models import Employee
+from app.schemas.employee_list import EmployeeListParams
 
 
 class FakeEmployeeRepository:
     def __init__(self) -> None:
         self.employees: dict[int, Employee] = {}
         self._next_id = 1
+
+    def search(self, params: EmployeeListParams) -> tuple[list[Employee], int]:
+        matches = sorted(
+            (e for e in self.employees.values() if _matches(e, params)),
+            key=lambda e: e.id,
+        )
+        matches.sort(
+            key=lambda e: getattr(e, params.sort), reverse=params.order == "desc"
+        )
+        start = (params.page - 1) * params.page_size
+        return matches[start : start + params.page_size], len(matches)
 
     def get(self, employee_id: int) -> Employee | None:
         return self.employees.get(employee_id)
@@ -27,3 +39,13 @@ class FakeEmployeeRepository:
 
     def delete(self, employee: Employee) -> None:
         del self.employees[employee.id]
+
+
+def _matches(employee: Employee, params: EmployeeListParams) -> bool:
+    text = f"{employee.full_name} {employee.email}".lower()
+    return (
+        (not params.q or params.q.lower() in text)
+        and (not params.country or employee.country == params.country)
+        and (not params.job_title or employee.job_title == params.job_title)
+        and (not params.department or employee.department == params.department)
+    )

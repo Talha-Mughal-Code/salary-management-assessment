@@ -3,6 +3,7 @@ from decimal import Decimal
 import pytest
 
 from app.schemas.employee import EmployeeCreate, EmployeeUpdate
+from app.schemas.employee_list import EmployeeListParams
 from app.services.employee_service import EmployeeService
 from app.services.errors import DuplicateEmailError, EmployeeNotFoundError
 from tests.fakes import FakeEmployeeRepository
@@ -113,3 +114,12 @@ def test_delete_removes_employee(service, repository):
 def test_delete_missing_employee_raises(service):
     with pytest.raises(EmployeeNotFoundError):
         service.delete(99)
+
+
+def test_search_wraps_results_in_a_page(service):
+    service.create(new_employee())
+
+    page = service.search(EmployeeListParams(page_size=10))
+
+    assert (page.total, page.page, page.page_size) == (1, 1, 10)
+    assert page.items[0].email == "anna.schmidt@acme.example"

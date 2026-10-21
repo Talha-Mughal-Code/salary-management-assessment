@@ -6,7 +6,7 @@ See [docs/requirements.md](docs/requirements.md) for scope.
 
 ## Live
 
-- Backend API: https://salary-management-assessment-mokv.vercel.app ([API docs](https://salary-management-assessment-mokv.vercel.app/docs))
+- Backend API: https://salary-management-assessment-omega.vercel.app ([API docs](https://salary-management-assessment-omega.vercel.app/docs))
 
 ## Deploy
 

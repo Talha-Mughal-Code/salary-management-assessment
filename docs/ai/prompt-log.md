@@ -94,3 +94,11 @@ Record how AI was used and how its output was checked. Add an entry for each not
 - **Correction:** a repository test asserted that `updated_at` increases, but `now()` is fixed inside one transaction, so it could never fail. Removed that assertion. The duplicate-email check runs before the insert; the unique index still protects against a race.
 - **Commit:** `feat(backend): add employee repository and service for CRUD`
 
+### Employee CRUD endpoints
+- **Goal:** expose create, get, update and delete over HTTP with clear errors and documented routes.
+- **Prompt (or summary):** asked Claude Code for routers under `/api/v1/employees`, error handlers for 404 and 409, an `employees` tag, and a test that every route has a described tag.
+- **Result:** `app/api/employees.py`, `app/api/dependencies.py` (service built from the request session), `app/api/errors.py` (404 and 409 handlers and documented error responses), `app/schemas/error.py`, the `employees` tag, router tests using the fake repository, and route documentation tests (tag, summary, description).
+- **My review:** `pytest` and `ruff` clean. Ran uvicorn against the seeded Docker database and called each route with curl: 201, 409 on a duplicate email in another case, 200, `salary_usd` and `updated_at` change on PATCH, 204, then 404, and 422 for a non-numeric id. Checked `/openapi.json` lists the tag and error codes for each route.
+- **Correction:** the fake repository needed `created_at` and `updated_at`, since the response model requires them.
+- **Commit:** `feat(backend): add employee CRUD endpoints`
+

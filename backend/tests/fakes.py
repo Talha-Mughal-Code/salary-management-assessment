@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 from app.models import Employee
 
 
@@ -14,11 +16,13 @@ class FakeEmployeeRepository:
 
     def add(self, employee: Employee) -> Employee:
         employee.id = self._next_id
+        employee.created_at = datetime.now(UTC)
         self._next_id += 1
         self.employees[employee.id] = employee
-        return employee
+        return self.save(employee)
 
     def save(self, employee: Employee) -> Employee:
+        employee.updated_at = datetime.now(UTC)
         return employee
 
     def delete(self, employee: Employee) -> None:

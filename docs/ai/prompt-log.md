@@ -134,3 +134,19 @@ Record how AI was used and how its output was checked. Add an entry for each not
 - **Correction:** the plan said streaming; rows are loaded in one query instead, because a streamed response would need the database session to outlive the request. The file stays under Vercel's 4.5 MB response limit.
 - **Commit:** `feat(backend): add CSV export for the filtered employee view`
 
+
+### CORS for the frontend
+- **Goal:** let the browser app call the API from another origin.
+- **Prompt (or summary):** asked Claude Code to enable CORS for the frontend.
+- **Result:** `CORSMiddleware` allowing any origin without credentials, for `GET`, `POST`, `PATCH` and `DELETE` with JSON bodies, and two tests (a `PATCH` preflight and a simple `GET`).
+- **My review:** `pytest` and `ruff` clean; checked the headers with curl against a local server.
+- **Correction:** none. Any origin is acceptable only because there is no login or cookies; this is recorded in `docs/architecture.md` together with what changes when login is added.
+- **Commit:** `feat(backend): allow cross-origin requests from the frontend`
+
+### Frontend
+- **Goal:** the HR Manager's UI: employee directory with search, filters, sorting, paging, create, edit, delete and CSV export, plus the insights dashboard.
+- **Prompt (or summary):** asked Claude Code to build the rest of the frontend following `frontend/CLAUDE.md`, after reading the bundled Next.js 16 docs on Cache Components and `useSearchParams`.
+- **Result:** typed API client (`src/lib/api.ts`), formatters, `useApiData` (loading, errors, and a "waking up the server" flag after 3 seconds), `useEmployeeQuery` (list state in the URL), `useFilterOptions`, the directory components, form and delete dialogs, and the insights dashboard with a CSS histogram. shadcn components added with the CLI. No new npm dependencies.
+- **My review:** `npm run lint`, `npm run typecheck` and `npm run build` pass; ran the app locally against the local API and checked each request the UI makes with curl (list, filters, preflight, 422 shape).
+- **Correction:** a sort header component was first defined inside the table component, which React recreates on every render; moved it out. `npm run format` also reformatted three files that were already in the repo, so those changes were reverted. Pydantic's pattern errors were unreadable, so the client shows "Has an invalid format." instead. The UI was not checked in a browser.
+- **Commit:** see the frontend commits in the commit list.

@@ -9,6 +9,7 @@ Scope: [docs/requirements.md](docs/requirements.md). Decisions and tradeoffs: [d
 
 ## Live
 
+- App: https://salary-management-assessment-6256.vercel.app
 - Backend API: https://salary-management-assessment-omega.vercel.app ([API docs](https://salary-management-assessment-omega.vercel.app/docs))
 
 The API runs as a serverless function. The first request after a quiet period takes about a second while it starts; the app shows a "waking up the server" message if a request takes longer than 3 seconds.
